@@ -11,28 +11,6 @@ local preamble_info_school school_code
 local not school_code
 local not1 interview__id
 
-***************
-***************
-* Append files from various questionnaires
-***************
-***************
-
-gl dir_v7 "${data_dir}\\School\\School Survey - Version 7 - without 10 Revisited Schools\\"
-gl dir_v8 "${data_dir}\\School\\School Survey - Version 8 - without 10 Revisited Schools\\"
-
-* get the list of files
-local files_v7: dir "${dir_v7}" files "*.dta"
-
-di `files_v7'
-* loop through the files and append into a single file saved in dir_saved
-gl dir_saved "${data_dir}\\School\\"
-
-foreach file of local files_v7 {
-	di "`file'"
-	use "${dir_v7}`file'", clear
-	append using "${dir_v8}`file'", force
-	save "${dir_saved}`file'", replace
-}
 
 ***************
 ***************
@@ -46,7 +24,7 @@ foreach file of local files_v7 {
 frame create school
 frame change school
 
-use "${data_dir}\\School\\epdash.dta" 
+use "${data_dir}\\School\\EPDashboard2.dta" 
 
 ********
 *read in the school weights
@@ -60,12 +38,14 @@ import delimited "${data_dir}\\Sampling\\${weights_file_name}"
 rename ${school_code_name} school_code 
 
 
-keep school_code ${strata} ${other_info} strata_prob ipw urban_rural
+keep school_code ${strata} ${other_info} strata_prob ipw 
 
 gen strata=" "
 foreach var in $strata {
 	replace strata=strata + `var' + " - "
 }
+
+gen urban_rural=location
 
 destring school_code, replace force
 destring ipw, replace force
@@ -134,7 +114,7 @@ frame change teachers
 * We are assuming the teacher level modules (Teacher roster, Questionnaire, Pedagogy, and Content Knowledge have already been linked here)
 * See Merge_Teacher_Modules code folder for help in this task if needed
 ********
-use "${data_dir}\\School\\Edo_teacher_level.dta" 
+use "${data_dir}\\School\\Balochistan_teacher_level.dta" 
 
 recode m2saq3 1=2 0=1
 
